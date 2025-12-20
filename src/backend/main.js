@@ -1,10 +1,8 @@
-import HTMLParser from "./HTMLParser";
+import HTMLParser from "./HTMLParser.js";
 
 
-
-const TEST_URL = "https://ihasabucket.com/";
-const TEST_URL_PATH = "../../tests/ihasabucket.htm";
+const TEST_URL = "https://example.com";
 
 const parserTest = new HTMLParser();
-const doc = parserTest.setHTMLString(TEST_URL_PATH);
+const doc = await parserTest.getHTMLDocument(TEST_URL);
 console.log(doc.title);
