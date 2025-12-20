@@ -1,17 +1,17 @@
 
 
-export class HTMLParser {
+export default class HTMLParser {
 
     htmlString;
     parser = new DOMParser();
     doc;
 
-    HTMLParser(url) {
+    constructor(url) {
         this.setHTMLString(url);
     }
 
 
-    async setHTMLString(url) {
+    async getHTMLDocument(url) {
         try {
         
             const response = await fetch(url);
@@ -22,6 +22,7 @@ export class HTMLParser {
 
             this.htmlString = await response.text();
             this.doc = this.parser.parseFromString(this.htmlString, "text/html");
+            return this.doc;
 
         } catch (error) {
             console.error("Failed to fetch HTML: ", error);
