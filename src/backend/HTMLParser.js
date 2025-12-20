@@ -1,6 +1,6 @@
 
 
-class HTMLParser {
+export class HTMLParser {
 
     htmlString;
     parser = new DOMParser();
