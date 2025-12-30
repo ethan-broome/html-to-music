@@ -10,7 +10,12 @@ def fetchHTML():
     print("REQUEST RECEIVED")
     url = request.args.get('url')
     print(f"FETCHING URL: {url}")
-    response = requests.get(url)
+
+    headers = {
+        'User-Agent' : 'HTML-To-Music'
+    }
+
+    response = requests.get(url, headers=headers)
     return response.text
     
 
