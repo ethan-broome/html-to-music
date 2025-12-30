@@ -19,4 +19,20 @@ document.getElementById("submit-button").addEventListener("click", async functio
     document.getElementById("num-imported-fonts").innerHTML = "<b>NUMBER OF IMPORTED FONTS: </b>" + parser.numImportedFonts();
     document.getElementById("character-counts").innerHTML = parser.printCharCount();
     document.getElementById("html").textContent = parser.getHTML();
+    createSong();
 });
+
+
+document.getElementById("play-button").addEventListener("click", async function(){
+    songBuilder.play();
+});
+
+document.getElementById("stop-button").addEventListener("click", function() {
+    songBuilder.stop();
+});
+
+//create song method
+function createSong() {
+    songBuilder.setPattern();
+    songBuilder.setTempo(parser.numLinks() % 30 * 10);
+}

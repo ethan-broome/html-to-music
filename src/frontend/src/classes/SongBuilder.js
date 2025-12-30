@@ -1,24 +1,34 @@
-import { repl } from '@strudel/core';
-import { webaudioOutput } from '@strudel/webaudio';
-import { 
-  note,
-  s,
-  stack,
-  cat,
-} from '@strudel/core';
+import { initStrudel,
+    hush,
+ } from '@strudel/web';
 
 class SongBuilder {
 
-    scheduler;
+    pattern;
 
     constructor() {
-        const { scheduler } = repl({
-            defaultOutput : webaudioOutput,
-        });
-        this.scheduler = scheduler;
+        initStrudel();
     }
 
-    
+    setPattern() {
+        this.pattern = note("c3 e3 g3 c4").s("sawtooth");
+    }
+
+    setTempo(tempo) {
+        this.pattern = this.pattern.cpm(tempo / 4);
+    }
+
+    play() {
+        if (!this.pattern) {
+            console.error("Error: No pattern created. Unable to play.");
+            return;
+        }
+        this.pattern.play();
+    }
+
+    stop() {
+        hush();
+    }
 
 }
 
