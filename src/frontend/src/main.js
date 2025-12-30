@@ -1,6 +1,8 @@
-import HTMLParser from "./HTMLParser.js";
+import HTMLParser from "./classes/HTMLParser.js";
+import SongBuilder from "./classes/SongBuilder.js";
 
 const parser = new HTMLParser();
+const songBuilder = new SongBuilder();
 
 document.getElementById("submit-button").addEventListener("click", async function() {
     await parser.fetchHTML(document.getElementById("url-input").value);
