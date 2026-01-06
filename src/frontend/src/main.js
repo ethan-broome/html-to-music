@@ -19,7 +19,21 @@ document.getElementById("submit-button").addEventListener("click", async functio
     document.getElementById("num-imported-fonts").innerHTML = "<b>NUMBER OF IMPORTED FONTS: </b>" + parser.numImportedFonts();
     document.getElementById("character-counts").innerHTML = parser.printCharCount();
     document.getElementById("html").textContent = parser.getHTML();
-    createSong();
+
+    const htmlData = {
+        url: parser.getURL(),
+        title: parser.getTitle(),
+        numLinks: parser.numLinks(),
+        numImages: parser.numImages(),
+        numEmbeds: parser.numEmbeds(),
+        compatMode: parser.compatMode(),
+        contentType: parser.contentType(),
+        charSet: parser.characterSet(),
+        importedFonts: parser.numImportedFonts(),
+        charCounts: parser.getCharCount(),
+    }
+
+    createSong(htmlData);
 });
 
 
@@ -32,7 +46,6 @@ document.getElementById("stop-button").addEventListener("click", function() {
 });
 
 //create song method
-function createSong() {
-    songBuilder.setPattern();
-    songBuilder.setTempo(parser.numLinks() % 30 * 10);
+function createSong(htmlData) {
+    songBuilder.createSong(htmlData);
 }
