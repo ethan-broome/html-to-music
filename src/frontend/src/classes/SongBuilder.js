@@ -3,6 +3,7 @@ import { initStrudel,
     note,
     stack,
     sound,
+    samples,
  } from '@strudel/web';
 
 class SongBuilder {
@@ -17,6 +18,7 @@ class SongBuilder {
     //song data
     tempo;
     beatsPerBar;
+    key;
 
     //html data
     docURL;
@@ -38,8 +40,45 @@ class SongBuilder {
     TEMPO_SEED;
     KEY_SIGNATURE_SEED;
 
-    //instrument arrays:
-    drumSounds = ["~", "bd", "sd", "rim", "oh", "lt", "mt", "ht", "rd", "cr"];
+    //strudel arrays:
+    /***************/
+
+    //strudel library scales: (issue with #)
+    scales = ["pentatonic", "major", "minor", "major:blues", "minor:blues",
+            "melodic:minor", "harmonic:minor", "bebop", "diminished", "dorian",
+            "lydian", "mixolydian", "phrygian", "locrian", "ionian:pentatonic", 
+            "mixolydian:pentatonic", "ritusen", "egyptian", "neopolitan:major:pentatonic",
+            "vietnamese:1", "pelog", "kumoijoshi", "hirajoshi", "iwato",
+            "in-sen", "lydian:pentatonic", "malkos:raga", "locrian:pentatonic", "minor:pentatonic",
+            "minor:six:pentatonic", "flat:three:pentatonic", "flat:six:pentatonic", "scriabin",
+            "whole:tone:pentatonic", 
+            //"lydian:#5P:pentatonic", 
+            "lydian:dominant:pentatonic", 
+            //"minor:#7M:pentatonic", 
+            "super:locrian:pentatonic", "minor:hexatonic", "augmented",
+            "piongio", "prometheus:neopolitan", "prometheus", 
+            //"mystery:#1", 
+            "six:tone:symmetric",
+            "whole:tone", 
+            //"messiaen's:mode:#5", 
+            "locrian:major", "double:harmonic:lydian", 
+            "altered", "half-diminished", "hindu", "overtone", "lydian:augmented", "dorian:b2",
+            "ultralocrian", "locrain:6", "altered:dorian", "lydian:diminished", "leading:whole:tone",
+            "lydian:minor", "spanish", "balinese", "neopolitan:major", "harmonic:major", 
+            "gypsy", "hungarian:minor", "hungarian:major", "oriental", "flamenco", "todi:raga",
+            "persian", "enigmatic", "major:augmented", 
+            //"lydian:#9", "messiaen's:mode:#4",
+            "purvi:raga", "spanish:heptatonic", "bebop:minor", "bebop:major", "bebop:locrian",
+            "minor:bebop", "ichikosucho", "minor:six:diminished", "half-whole:diminished", "kafi:raga",
+            //"messiaen's:mode:#6", 
+            "composite:blues", 
+            //"messiaen's:mode:#3", "messiaen's:mode:#7", 
+            "chromatic"
+    ]
+    keys = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+
+    //drum sounds are incomplete
+    drumSounds = ["bd", "sd", "lt", "mt", "ht", "cr"];
 
 
 
@@ -55,6 +94,7 @@ class SongBuilder {
 
     async initialize() {
         await initStrudel();
+        samples('github:tidalcycles/dirt-samples');
         this.isReady = true;
     }
 
@@ -84,15 +124,33 @@ class SongBuilder {
         this.importedFonts = htmlData.importedFonts;
     }
 
+    getNextNumber(seed) {
+        let newSeed;
+        newSeed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
+        return newSeed;
+    }
+
 
 
     //SETTERS
     setTempo() {
         this.tempo = this.TEMPO_SEED % 300;
+        console.log("Tempo: " + this.tempo);
     }
 
     setBeatsPerBar() {
         this.beatsPerBar = (this.KEY_SIGNATURE_SEED % 6) + 3;
+        console.log("Beats Per Bar: " + this.beatsPerBar);
+    }
+
+    setKey() {
+        let seed = this.getNextNumber(this.CHORD_SEED);
+        this.key = "";
+        this.key += this.keys[seed % this.keys.length];
+        this.key += ":";
+        seed = this.getNextNumber(seed);
+        this.key += this.scales[seed % this.scales.length];
+        console.log("Key: " + this.key);
     }
 
 
@@ -102,7 +160,7 @@ class SongBuilder {
 
         //Seed Formula: The number of occurrences in the html of a character decided by "SomeHtmlProperty % NumberOfUniqueCharacters"
 
-        const chars = Object.keys(this.charCounts);
+        const chars = Object.keys(this.charCounts).sort();
         const numChars = chars.length;
 
         //mod to prevent overflow
@@ -138,7 +196,29 @@ class SongBuilder {
 
     //PATTERN GENERATION
     generateDrums() {
+        let notes = "<";
 
+        for (let i = 0; i < this.beatsPerBar * 2; i++) {
+            if (this.DRUM_SEED % i === 0) 
+                notes += "~ ";
+            else
+                notes += this.drumSounds[i % this.drumSounds.length] + " ";
+        }
+
+        notes += ">*" + (this.beatsPerBar * 4);
+
+        let pattern = sound(notes);
+        this.appendPattern(pattern);
+    }
+
+    generateMelody() {
+        let notes = "";
+        for (let i = 0; i < this.beatsPerBar * 2; i++) {
+            notes += i + " ";
+        }
+
+        let pattern = n(notes).scale(this.key);
+        this.appendPattern(pattern);
     }
 
 
@@ -154,7 +234,11 @@ class SongBuilder {
     }
 
     buildPatterns() {
-        //call pattern constructors, each of which will create a new pattern and append it to patterns
+        this.setTempo();
+        this.setBeatsPerBar();
+        this.setKey();
+        this.generateMelody();   
+        this.generateDrums();
     }
 
     combinePatterns() {
@@ -166,11 +250,12 @@ class SongBuilder {
 
     createSong(htmlData) {
         console.log("createSong called");
+        this.patterns.length = 0;
 
         this.getHTMLData(htmlData);
         this.setSeeds();
-        //this.buildPatterns();
-        //this.combinePatterns();
+        this.buildPatterns();
+        this.combinePatterns();
     }
 
 
