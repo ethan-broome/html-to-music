@@ -19,6 +19,9 @@ class SongBuilder {
     tempo;
     beatsPerBar;
     key;
+    progression = [];
+    numBars;
+    rootnote;
 
     //html data
     docURL;
@@ -63,7 +66,7 @@ class SongBuilder {
             //"messiaen's:mode:#5", 
             "locrian:major", "double:harmonic:lydian", 
             "altered", "half-diminished", "hindu", "overtone", "lydian:augmented", "dorian:b2",
-            "ultralocrian", "locrain:6", "altered:dorian", "lydian:diminished", "leading:whole:tone",
+            "ultralocrian", "locrian:6", "altered:dorian", "lydian:diminished", "leading:whole:tone",
             "lydian:minor", "spanish", "balinese", "neopolitan:major", "harmonic:major", 
             "gypsy", "hungarian:minor", "hungarian:major", "oriental", "flamenco", "todi:raga",
             "persian", "enigmatic", "major:augmented", 
@@ -126,8 +129,8 @@ class SongBuilder {
 
     getNextNumber(seed) {
         let newSeed;
-        newSeed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
-        return newSeed;
+        newSeed = (BigInt(seed) * 1103515245n + 12345n) & 0x7FFFFFFFn;
+        return Number(newSeed);
     }
 
 
@@ -135,6 +138,8 @@ class SongBuilder {
     //SETTERS
     setTempo() {
         this.tempo = this.TEMPO_SEED % 300;
+        if (this.tempo < 100)
+            this.tempo += 100;
         console.log("Tempo: " + this.tempo);
     }
 
@@ -147,10 +152,27 @@ class SongBuilder {
         let seed = this.getNextNumber(this.CHORD_SEED);
         this.key = "";
         this.key += this.keys[seed % this.keys.length];
+        this.rootnote = this.key + "4";
         this.key += ":";
         seed = this.getNextNumber(seed);
         this.key += this.scales[seed % this.scales.length];
         console.log("Key: " + this.key);
+    }
+
+    setChordProgession() {
+        this.progression.length = 0;
+        let numChords = this.CHORD_SEED % 16;
+        let chordSeed = this.getNextNumber(this.CHORD_SEED);
+
+        for (let i = 0; i < numChords; i++) {
+            this.progression.push(chordSeed % 8);
+            chordSeed = this.getNextNumber(chordSeed);
+        }
+
+        this.numBars = this.progression.length;
+
+        console.log("Chord Progression: " + this.progression);
+        console.log("Length of Song: " + this.numBars + (" bars"));
     }
 
 
@@ -196,28 +218,41 @@ class SongBuilder {
 
     //PATTERN GENERATION
     generateDrums() {
-        let notes = "<";
+        let notes = "<"
 
-        for (let i = 0; i < this.beatsPerBar * 2; i++) {
-            if (this.DRUM_SEED % i === 0) 
-                notes += "~ ";
-            else
-                notes += this.drumSounds[i % this.drumSounds.length] + " ";
+        for (let i = 0; i < this.beatsPerBar; i++) {
+            notes += "hh ";
         }
+        notes += ">*";
+        notes += this.beatsPerBar * 2;
 
-        notes += ">*" + (this.beatsPerBar * 4);
+        let hihats = sound(notes);
+        this.appendPattern(hihats);
 
-        let pattern = sound(notes);
-        this.appendPattern(pattern);
+        let bassdrum = sound("<bd>");
+        this.appendPattern(bassdrum);
     }
 
     generateMelody() {
         let notes = "";
-        for (let i = 0; i < this.beatsPerBar * 2; i++) {
-            notes += i + " ";
+        for (let j = 0; j < this.numBars; j++) {
+            let root = this.progression[j];
+            for (let i = 0; i < this.beatsPerBar; i++) {
+                notes += (root + " ");
+                root += 1;
+            }
         }
 
-        let pattern = n(notes).scale(this.key);
+        let pattern = n(notes).scale(this.key).slow(this.numBars).sound("sax");
+        this.appendPattern(pattern);
+    }
+
+    generateChords() {
+        let chordNotes = this.progression.map(degree => {
+            return `[${degree}, ${degree + 2}, ${degree + 4}]`;
+        }).join (" ");
+
+        let pattern = n(`<${chordNotes}>`).scale(this.key);
         this.appendPattern(pattern);
     }
 
@@ -237,6 +272,8 @@ class SongBuilder {
         this.setTempo();
         this.setBeatsPerBar();
         this.setKey();
+        this.setChordProgession();
+        this.generateChords();
         this.generateMelody();   
         this.generateDrums();
     }
