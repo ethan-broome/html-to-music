@@ -43,6 +43,13 @@ class SongBuilder {
     TEMPO_SEED;
     TIME_SIGNATURE_SEED;
 
+    //weights
+    drumWeights = {
+        hihats : 0.7,
+        bassdrum : 0.4,
+        snare : 0.25
+    }
+
     //strudel arrays:
     /***************/
 
@@ -79,6 +86,8 @@ class SongBuilder {
             "chromatic"
     ]
     keys = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+
+    vowels = ["a", "e", "i", "o", "u"];
 
     //drum sounds are incomplete
     drumSounds = ["bd", "sd", "lt", "mt", "ht", "cr"];
@@ -167,7 +176,7 @@ class SongBuilder {
         console.log("Key: " + this.key);
     }
 
-    setChordProgession() {
+    setChordProgression() {
         this.progression.length = 0;
         let numChords = this.CHORD_SEED % 16 || 1;
         let random = this.mulberry32(this.CHORD_SEED + 1000);
@@ -225,19 +234,21 @@ class SongBuilder {
 
     //PATTERN GENERATION
     generateDrums() {
-        let notes = "<"
+        let random = this.mulberry32(this.DRUM_SEED);
 
-        for (let i = 0; i < this.beatsPerBar; i++) {
-            notes += "hh ";
-        }
-        notes += ">*";
-        notes += this.beatsPerBar * 2;
+        const hhPattern = Array.from({length: this.beatsPerBar}, () => random() < this.drumWeights.hihats ? 1 : 0);
+        const bdPattern = Array.from({length: this.beatsPerBar}, () => random() < this.drumWeights.bassdrum ? 1 : 0);
+        const sdPattern = Array.from({length: this.beatsPerBar}, () => random() < this.drumWeights.snare ? 1 : 0);
 
-        let hihats = sound(notes);
-        this.appendPattern(hihats);
+        let hihats = s("hh").struct(hhPattern.join(' '));
+        let bassdrum = s("bd").struct(bdPattern.join(' '));
+        let snare = s("sd").struct(sdPattern.join(' '));
 
-        let bassdrum = sound("<bd>");
-        this.appendPattern(bassdrum);
+        let drums = stack(hihats, bassdrum, snare);
+
+        drums = this.addEffects(drums, this.DRUM_SEED);
+
+        this.appendPattern(drums);
     }
 
     generateMelody() {
@@ -260,7 +271,90 @@ class SongBuilder {
         }).join (" ");
 
         let pattern = n(`<${chordNotes}>`).scale(this.key);
+
+        let random = this.mulberry32(this.CHORD_SEED + 500);
+
+        //sounds
+        if (random() < 0.2) {
+            pattern = pattern.sound("pluck");
+            console.log("Pluck Sound Applied!");
+        }
+
+        else if (random() < 0.2) {
+            pattern = pattern.sound("newnotes");
+            console.log("New Notes Sound Applied!");
+        }
+
+        pattern = this.addEffects(pattern, this.CHORD_SEED);
+
         this.appendPattern(pattern);
+    }
+
+    //PATTERN EFFECTS
+    addEffects(pattern, seed) {
+
+        let random = this.mulberry32(seed);
+
+        if (random() < 0.5) {
+            pattern = pattern.lpf(500 + random() * 2000);
+            console.log("Low Pass Filter Applied!");
+        }
+
+        else if (random() < 0.5) {
+            pattern = pattern.hpf(50 + random() * 450);
+            console.log("High Pass Filter Applied!");
+        }
+
+        else if (random() < 0.5) {
+            pattern = pattern.bpf(200 + random() * 1800)
+            console.log("Band Pass Filter Applied!");
+        }
+
+        if (random() < 0.3) {
+            pattern = pattern.vowel(this.vowels[this.seededRandomInt(random, this.vowels.length)])
+        }
+
+        if (random() < 0.5) {
+            pattern = pattern.room(random());
+            console.log("Reverb Applied!");
+        }
+
+        if (random() < 0.5) {
+            pattern = pattern.delay(random());
+            console.log("Delay Applied!");
+        }
+
+        if (random() < 0.3) {
+            pattern = pattern.coarse(this.seededRandomInt(random, 32));
+            console.log("Bit Crush Applied!");
+        }
+
+        if (random() < 0.3) {
+            pattern = pattern.tremolosync(this.beatsPerBar);
+            console.log("Tremolo Sync Applied!");
+        }
+
+        if (random() < 0.3) {
+            pattern = pattern.attack(random());
+            console.log("Attack Modified!");
+        }
+
+        if (random() < 0.3) {
+            pattern = pattern.decay(random());
+            console.log("Decay Modified!");
+        }
+
+        if (random() < 0.3) {
+            pattern = pattern.sustain(random());
+            console.log("Sustain Modified!");
+        }
+
+        if (random() < 0.3) {
+            pattern = pattern.release(random());
+            console.log("Release Modified!");
+        }
+
+        return pattern;
     }
 
 
@@ -279,9 +373,9 @@ class SongBuilder {
         this.setTempo();
         this.setBeatsPerBar();
         this.setKey();
-        this.setChordProgession();
+        this.setChordProgression();
         this.generateChords();
-        this.generateMelody();   
+        //this.generateMelody();
         this.generateDrums();
     }
 
