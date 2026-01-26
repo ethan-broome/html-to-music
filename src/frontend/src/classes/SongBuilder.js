@@ -41,7 +41,7 @@ class SongBuilder {
     MELODY_SEED;
     CHORD_SEED;
     TEMPO_SEED;
-    KEY_SIGNATURE_SEED;
+    TIME_SIGNATURE_SEED;
 
     //strudel arrays:
     /***************/
@@ -127,10 +127,20 @@ class SongBuilder {
         this.importedFonts = htmlData.importedFonts;
     }
 
-    getNextNumber(seed) {
-        let newSeed;
-        newSeed = (BigInt(seed) * 1103515245n + 12345n) & 0x7FFFFFFFn;
-        return Number(newSeed);
+
+    //used for random float between 0 and 1
+    mulberry32(seed) {
+        return function() {
+            let t = seed += 0x6D2B79F5;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
+    //used alongside mulberry 32 to generate random int, pass in mulberry32 function object and max value
+    seededRandomInt(random, max) {
+        return Math.floor(random() * max);
     }
 
 
@@ -144,29 +154,26 @@ class SongBuilder {
     }
 
     setBeatsPerBar() {
-        this.beatsPerBar = (this.KEY_SIGNATURE_SEED % 6) + 3;
+        this.beatsPerBar = (this.TIME_SIGNATURE_SEED % 6) + 3;
         console.log("Beats Per Bar: " + this.beatsPerBar);
     }
 
     setKey() {
-        let seed = this.getNextNumber(this.CHORD_SEED);
-        this.key = "";
-        this.key += this.keys[seed % this.keys.length];
+        let random = this.mulberry32(this.CHORD_SEED);
+
+        this.key = this.keys[this.seededRandomInt(random, this.keys.length)];
         this.rootnote = this.key + "4";
-        this.key += ":";
-        seed = this.getNextNumber(seed);
-        this.key += this.scales[seed % this.scales.length];
+        this.key += ":" + this.scales[this.seededRandomInt(random, this.scales.length)];
         console.log("Key: " + this.key);
     }
 
     setChordProgession() {
         this.progression.length = 0;
-        let numChords = this.CHORD_SEED % 16;
-        let chordSeed = this.getNextNumber(this.CHORD_SEED);
+        let numChords = this.CHORD_SEED % 16 || 1;
+        let random = this.mulberry32(this.CHORD_SEED + 1000);
 
         for (let i = 0; i < numChords; i++) {
-            this.progression.push(chordSeed % 8);
-            chordSeed = this.getNextNumber(chordSeed);
+            this.progression.push(this.seededRandomInt(random, 8));
         }
 
         this.numBars = this.progression.length;
@@ -204,14 +211,14 @@ class SongBuilder {
         this.MELODY_SEED = melodyCount * (this.OFFSET);
         this.CHORD_SEED = chordCount * (this.OFFSET);
         this.TEMPO_SEED = tempoCount * (this.OFFSET);
-        this.KEY_SIGNATURE_SEED = keySignatureCount * (this.OFFSET);
+        this.TIME_SIGNATURE_SEED = keySignatureCount * (this.OFFSET);
 
         console.log("Offset: ", this.OFFSET);
         console.log("Drum Seed: ", this.DRUM_SEED);
         console.log("Melody Seed: ", this.MELODY_SEED);
         console.log("Chord Seed: ", this.CHORD_SEED);
         console.log("Tempo Seed: ", this.TEMPO_SEED);
-        console.log("Key Signature Seed: ", this.KEY_SIGNATURE_SEED);
+        console.log("Key Signature Seed: ", this.TIME_SIGNATURE_SEED);
     }
 
 
