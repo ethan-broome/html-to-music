@@ -5,12 +5,57 @@
         <title>HTML to Music</title>
     </head>
     <body>
-        <input type="url" id="url-input" placeholder="Enter Website URL">
-        <input type="submit" id="submit-button" value="Convert">
-        <input type="submit" id="play-button" value="Play">
-        <input type="submit" id="stop-button" value="Stop">
+        <div class="header-section">
+            <h1>HTML to Music</h1>
+        </div>
 
-        <!-- Output Fields -->
+        <div class="input-section">
+            <input type="url" id="url-input" placeholder="Enter Website URL">
+            <input type="submit" id="submit-button" value="Convert">
+        </div>
+
+        <div class="button-section">
+            <input type="submit" id="play-button" value="Play">
+            <input type="submit" id="stop-button" value="Stop">
+
+        </div>
+
+        <div class="table-section">
+            <table id="song-info">
+                <thead>
+                    <tr>
+                        <th>Song</th>
+                        <th>Information</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Playing:</td>
+                        <td id="status"></td>
+                    </tr>
+                    <tr>
+                        <td>Key:</td>
+                        <td id="key"></td>
+                    </tr>
+                    <tr>
+                        <td>BPM:</td>
+                        <td id="bpm"></td>
+                    </tr>
+                    <tr>
+                        <td>Meter:</td>
+                        <td id="meter"></td>
+                    </tr>
+                    <tr>
+                        <td>Measures:</td>
+                        <td id="measures"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Output Fields 
         <div id="url"></div>
         <div id="title"></div>
         <div id="num-links"></div>
@@ -22,7 +67,7 @@
         <div id="num-imported-fonts"></div>
         <div id="character-counts"></div>
         <br />
-        <div id="html"></div>
+        <div id="html"></div> -->
 
 
         <script type="module" src="./src/main.js"></script>

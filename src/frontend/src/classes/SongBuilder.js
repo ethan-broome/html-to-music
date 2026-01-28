@@ -468,6 +468,17 @@ class SongBuilder {
         this.combinePatterns();
     }
 
+    getSongInfo() {
+        let info = {
+            key : this.key.replaceAll(":", " "),
+            bpm : this.tempo,
+            meter : this.beatsPerBar + "/4",
+            measures : this.numBars
+        }
+
+        return info;
+    }
+
 
     
     //START AND STOP
