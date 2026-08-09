@@ -1,0 +1,4 @@
+*.pvc
+*.pyo
+env/
+venv/

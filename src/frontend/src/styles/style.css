@@ -1,0 +1,116 @@
+body {
+    background-color: lightsteelblue;
+}
+
+
+#url-input {
+    width: 80%;
+    max-width: 600px;
+    height: 40px;
+    padding: 10x 15x;
+    font-size: 16px;
+    background-color: rgb(231, 248, 255);
+    border: 2px solid #000000;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+#url-input:focus {
+    outline: none;
+    border-color: grey;
+    box-shadow: 2px 2px 5px grey;
+}
+
+#submit-button {
+    background-color: rgb(231, 248, 255);
+    font-size: 16px;
+    padding: 10x 15x;
+    border-radius: 8px;
+    border: 2px solid black;
+    box-sizing: border-box;
+}
+
+#submit-button:hover {
+    background-color: rgb(231, 248, 255);
+    transform: scale(1.1);
+}
+
+#play-button {
+    background-color: rgb(231, 248, 255);
+    font-size: 16px;
+    padding: 10x 15x;
+    border-radius: 8px;
+    border: 2px solid black;   
+    box-sizing: border-box;
+}
+
+#play-button:hover {
+    background-color: rgb(231, 248, 255);
+    transform: scale(1.1);
+}
+
+#stop-button {
+    background-color: rgb(231, 248, 255);
+    font-size: 16px;
+    padding: 10x 15x;
+    border-radius: 8px;
+    border: 2px solid black;
+    box-sizing: border-box;
+}
+
+#stop-button:hover {
+    background-color: rgb(231, 248, 255);
+    transform: scale(1.1);
+}
+
+#song-info {
+    background-color: rgb(231, 248, 255);
+    font-size: 20px;
+    padding: 30x 35x;
+    border-radius: 8px;
+    border: 2px solid black;
+    border-spacing: 10px;
+    margin: 20px auto;
+    box-sizing: content-box;
+}
+
+#song-info th {
+    border: 1px solid black;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+
+#song-info tbody tr:hover {
+    background-color: rgb(231, 248, 255);
+    transform: scale(1.02);
+}
+
+.header-section {
+    display: flex;
+    justify-content: center;
+    font-size: xx-large;
+    color: rgb(231, 248, 255);
+    font-style: initial;
+    text-shadow: 2px 2px 2px grey;
+}
+
+.input-section {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.button-section {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.table-section {
+    display: flex;
+    justify-content: center;
+}
+
